@@ -1,0 +1,18 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build and Run Full Stack App",
+			"type": "shell",
+			"command": "start",
+			"args": [
+				"pwsh",
+				"-Command",
+				"cd VotingApp.Api; dotnet run"
+			],
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}
