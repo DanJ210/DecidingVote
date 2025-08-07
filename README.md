@@ -45,13 +45,18 @@ A full-stack web application that allows users to create polls/questions and vot
    dotnet restore
    ```
 
-3. Update the database:
+3. Install Entity Framework Core tools (if not already installed):
    ```bash
+   dotnet tool install --global dotnet-ef
+   ```
+
+4. Create and apply database migrations:
+   ```bash
+   dotnet ef migrations add InitialCreate
    dotnet ef database update
    ```
-   (If no migrations exist, create one first: `dotnet ef migrations add InitialCreate`)
 
-4. Run the API:
+5. Run the API:
    ```bash
    dotnet run
    ```
