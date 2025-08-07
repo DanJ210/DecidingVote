@@ -45,7 +45,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(e => e.User)
                   .WithMany(u => u.Votes)
                   .HasForeignKey(e => e.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
+                  .OnDelete(DeleteBehavior.NoAction);
 
             entity.HasOne(e => e.Question)
                   .WithMany(q => q.Votes)
@@ -60,9 +60,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Configure ApplicationUser entity
         builder.Entity<ApplicationUser>(entity =>
         {
-            entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
             entity.Property(e => e.CreatedAt).IsRequired();
-            entity.HasIndex(e => e.Username).IsUnique();
+            entity.Property(e => e.UserName).IsRequired().HasMaxLength(50);
+            entity.HasIndex(e => e.UserName).IsUnique();
         });
     }
 }

@@ -60,15 +60,32 @@ async function submitPoll() {
   
   try {
     const token = localStorage.getItem('authToken')
+    console.log('Token from localStorage:', token ? 'Token exists' : 'No token found')
+    console.log('Token preview:', token ? token.substring(0, 20) + '...' : 'null')
+    
+    if (!token) {
+      alert('You must be logged in to create a poll')
+      router.push('/login')
+      return
+    }
+    
     await axios.post('/api/questions', form, {
       headers: { Authorization: `Bearer ${token}` }
     })
     
     // Redirect to questions page
     router.push('/questions')
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error creating poll:', err)
-    alert('Failed to create poll. Please try again.')
+    console.error('Error response:', err.response?.data)
+    console.error('Error status:', err.response?.status)
+    
+    if (err.response?.status === 401) {
+      alert('Authentication failed. Please log in again.')
+      router.push('/login')
+    } else {
+      alert(err.response?.data?.message || 'Failed to create poll. Please try again.')
+    }
   } finally {
     submitting.value = false
   }

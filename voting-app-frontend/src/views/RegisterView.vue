@@ -67,9 +67,11 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { useAuth } from '../composables/useAuth'
 import axios from 'axios'
 
 const router = useRouter()
+const { login } = useAuth()
 
 const form = reactive({
   username: '',
@@ -95,6 +97,7 @@ async function handleRegister() {
     alert('Password must be at least 6 characters long')
     return
   }
+
   
   submitting.value = true
   
@@ -105,8 +108,8 @@ async function handleRegister() {
       password: form.password
     })
     
-    // Store the token
-    localStorage.setItem('authToken', response.data.token)
+    // Use the auth composable to handle login after registration
+    login(response.data.token)
     
     // Redirect to home page
     router.push('/')

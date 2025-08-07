@@ -31,7 +31,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 // Configure JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "your-super-secret-key-that-is-at-least-256-bits-long";
-var key = Encoding.ASCII.GetBytes(jwtKey);
+var key = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -52,6 +52,21 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"] ?? "VotingApp",
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
+    };
+    
+    // Add event handlers for debugging
+    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"JWT Authentication failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            Console.WriteLine($"JWT Challenge: {context.Error}, {context.ErrorDescription}");
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -81,7 +96,20 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 
-app.UseHttpsRedirection();
+// Add request logging middleware for debugging
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api/questions") && context.Request.Method == "POST")
+    {
+        Console.WriteLine("=== Incoming POST /api/questions request ===");
+        Console.WriteLine($"Headers:");
+        foreach (var header in context.Request.Headers)
+        {
+            Console.WriteLine($"  {header.Key}: {header.Value}");
+        }
+    }
+    await next();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -92,7 +120,8 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.Migrate();
+    //context.Database.Migrate();
+    context.Database.EnsureCreated();
 }
 
 app.Run();

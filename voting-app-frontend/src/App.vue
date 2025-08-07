@@ -1,18 +1,14 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { useAuth } from './composables/useAuth'
+import { useRouter } from 'vue-router'
 
-const isAuthenticated = ref(false)
-
-onMounted(() => {
-  // Check if user is authenticated (placeholder logic)
-  const token = localStorage.getItem('authToken')
-  isAuthenticated.value = !!token
-})
+const { isAuthenticated, logout: authLogout } = useAuth()
+const router = useRouter()
 
 function logout() {
-  localStorage.removeItem('authToken')
-  isAuthenticated.value = false
+  authLogout()
+  router.push('/')
 }
 </script>
 

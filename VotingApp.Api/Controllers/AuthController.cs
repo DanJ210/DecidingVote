@@ -41,9 +41,8 @@ public class AuthController : ControllerBase
 
         var user = new ApplicationUser
         {
-            UserName = dto.Email,
+            UserName = dto.Username,
             Email = dto.Email,
-            Username = dto.Username,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -63,8 +62,8 @@ public class AuthController : ControllerBase
         return Ok(new AuthResponseDto
         {
             Token = token,
-            Username = user.Username,
-            Email = user.Email
+            Username = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty
         });
     }
 
@@ -87,8 +86,8 @@ public class AuthController : ControllerBase
         return Ok(new AuthResponseDto
         {
             Token = token,
-            Username = user.Username,
-            Email = user.Email
+            Username = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty
         });
     }
 
@@ -111,15 +110,34 @@ public class AuthController : ControllerBase
         return Ok(new UserProfileDto
         {
             Id = user.Id,
-            Username = user.Username,
-            Email = user.Email,
+            Username = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
             CreatedAt = user.CreatedAt,
             QuestionsCount = user.Questions.Count,
             VotesCount = user.Votes.Count
         });
     }
 
-    private async Task<string> GenerateJwtToken(ApplicationUser user)
+    [HttpGet("test")]
+    [Authorize]
+    public IActionResult TestAuth()
+    {
+        Console.WriteLine("=== TestAuth endpoint hit ===");
+        Console.WriteLine($"User.Identity.IsAuthenticated: {User.Identity?.IsAuthenticated}");
+        Console.WriteLine($"User.Identity.Name: {User.Identity?.Name}");
+        
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        Console.WriteLine($"UserId from claims: {userId}");
+        
+        return Ok(new { 
+            message = "Authentication successful!", 
+            userId = userId,
+            userName = User.Identity?.Name,
+            isAuthenticated = User.Identity?.IsAuthenticated
+        });
+    }
+
+    private Task<string> GenerateJwtToken(ApplicationUser user)
     {
         var jwtKey = _configuration["Jwt:Key"] ?? "your-super-secret-key-that-is-at-least-256-bits-long";
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
@@ -128,8 +146,8 @@ public class AuthController : ControllerBase
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.Name, user.UserName!),
+            new Claim(ClaimTypes.Email, user.Email!)
         };
 
         var token = new JwtSecurityToken(
@@ -139,6 +157,13 @@ public class AuthController : ControllerBase
             expires: DateTime.Now.AddDays(7),
             signingCredentials: creds);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        
+        // Debug logging
+        Console.WriteLine($"Generated JWT token for user {user.UserName}");
+        Console.WriteLine($"Token length: {tokenString.Length}");
+        Console.WriteLine($"JWT Key: {jwtKey.Substring(0, 10)}...");
+        
+        return Task.FromResult(tokenString);
     }
 }

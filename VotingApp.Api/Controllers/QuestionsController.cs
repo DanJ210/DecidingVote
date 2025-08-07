@@ -31,7 +31,7 @@ public class QuestionsController : ControllerBase
                 Id = q.Id,
                 Title = q.Title,
                 Description = q.Description,
-                Author = q.User.Username,
+                Author = q.User.UserName ?? string.Empty,
                 CreatedAt = q.CreatedAt,
                 YesVotes = q.Votes.Count(v => v.IsYes),
                 NoVotes = q.Votes.Count(v => !v.IsYes)
@@ -57,7 +57,7 @@ public class QuestionsController : ControllerBase
             Id = question.Id,
             Title = question.Title,
             Description = question.Description,
-            Author = question.User.Username,
+            Author = question.User.UserName ?? string.Empty,
             CreatedAt = question.CreatedAt,
             YesVotes = question.Votes.Count(v => v.IsYes),
             NoVotes = question.Votes.Count(v => !v.IsYes)
@@ -70,12 +70,28 @@ public class QuestionsController : ControllerBase
     [Authorize]
     public async Task<ActionResult<QuestionDto>> CreateQuestion(CreateQuestionDto dto)
     {
+        // Debug logging
+        Console.WriteLine("=== CreateQuestion endpoint hit ===");
+        Console.WriteLine($"User.Identity.IsAuthenticated: {User.Identity?.IsAuthenticated}");
+        Console.WriteLine($"User.Identity.Name: {User.Identity?.Name}");
+        Console.WriteLine($"Claims count: {User.Claims.Count()}");
+        
+        foreach (var claim in User.Claims)
+        {
+            Console.WriteLine($"Claim: {claim.Type} = {claim.Value}");
+        }
+        
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        Console.WriteLine($"Extracted userId: {userId}");
+        
         if (userId == null)
+        {
+            Console.WriteLine("UserId is null - returning Unauthorized");
             return Unauthorized();
+        }
 
         var question = new Question
         {
@@ -98,7 +114,7 @@ public class QuestionsController : ControllerBase
             Id = question.Id,
             Title = question.Title,
             Description = question.Description,
-            Author = question.User.Username,
+            Author = question.User.UserName ?? string.Empty,
             CreatedAt = question.CreatedAt,
             YesVotes = 0,
             NoVotes = 0
@@ -125,7 +141,7 @@ public class QuestionsController : ControllerBase
                 Id = q.Id,
                 Title = q.Title,
                 Description = q.Description,
-                Author = q.User.Username,
+                Author = q.User.UserName ?? string.Empty,
                 CreatedAt = q.CreatedAt,
                 YesVotes = q.Votes.Count(v => v.IsYes),
                 NoVotes = q.Votes.Count(v => !v.IsYes)
