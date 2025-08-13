@@ -2,7 +2,7 @@
   <div class="login">
     <h1>Login</h1>
     
-    <form @submit.prevent="handleLogin" class="form-container">
+  <form @submit.prevent="handleLogin" class="form-container" autocomplete="off">
       <div class="form-group">
         <label for="email">Email *</label>
         <input
@@ -11,6 +11,7 @@
           type="email"
           required
           placeholder="Enter your email"
+          autocomplete="email"
         />
       </div>
       
@@ -22,6 +23,7 @@
           type="password"
           required
           placeholder="Enter your password"
+          autocomplete="current-password"
         />
       </div>
       
@@ -42,7 +44,7 @@
 import { ref, reactive } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
-import axios from 'axios'
+import api from '../plugins/axios'
 
 const router = useRouter()
 const { login } = useAuth()
@@ -63,10 +65,13 @@ async function handleLogin() {
   submitting.value = true
   
   try {
-    const response = await axios.post('/api/auth/login', form)
+    const response = await api.post('/auth/login', form)
     
     // Use the auth composable to handle login
-    login(response.data.token)
+  login(response.data.token)
+  // Refresh in-memory auth state
+  // (useAuth keeps a shared module-level state, but ensure any guards react)
+  // No-op here as login() already updates state.
     
     // Redirect to home page
     router.push('/')

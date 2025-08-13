@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 using VotingApp.Api.Data;
 using VotingApp.Api.DTOs;
 using VotingApp.Api.Models;
@@ -31,10 +32,12 @@ public class QuestionsController : ControllerBase
                 Id = q.Id,
                 Title = q.Title,
                 Description = q.Description,
+                Side1Text = q.Side1Text,
+                Side2Text = q.Side2Text,
                 Author = q.User.UserName ?? string.Empty,
                 CreatedAt = q.CreatedAt,
-                YesVotes = q.Votes.Count(v => v.IsYes),
-                NoVotes = q.Votes.Count(v => !v.IsYes)
+                Side1Votes = q.Votes.Count(v => v.Choice == VoteChoice.Side1),
+                Side2Votes = q.Votes.Count(v => v.Choice == VoteChoice.Side2)
             })
             .ToListAsync();
 
@@ -57,10 +60,12 @@ public class QuestionsController : ControllerBase
             Id = question.Id,
             Title = question.Title,
             Description = question.Description,
+            Side1Text = question.Side1Text,
+            Side2Text = question.Side2Text,
             Author = question.User.UserName ?? string.Empty,
             CreatedAt = question.CreatedAt,
-            YesVotes = question.Votes.Count(v => v.IsYes),
-            NoVotes = question.Votes.Count(v => !v.IsYes)
+            Side1Votes = question.Votes.Count(v => v.Choice == VoteChoice.Side1),
+            Side2Votes = question.Votes.Count(v => v.Choice == VoteChoice.Side2)
         };
 
         return Ok(questionDto);
@@ -84,7 +89,8 @@ public class QuestionsController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
         Console.WriteLine($"Extracted userId: {userId}");
         
         if (userId == null)
@@ -97,6 +103,8 @@ public class QuestionsController : ControllerBase
         {
             Title = dto.Title,
             Description = dto.Description,
+            Side1Text = dto.Side1Text,
+            Side2Text = dto.Side2Text,
             UserId = userId,
             CreatedAt = DateTime.UtcNow
         };
@@ -114,10 +122,12 @@ public class QuestionsController : ControllerBase
             Id = question.Id,
             Title = question.Title,
             Description = question.Description,
+            Side1Text = question.Side1Text,
+            Side2Text = question.Side2Text,
             Author = question.User.UserName ?? string.Empty,
             CreatedAt = question.CreatedAt,
-            YesVotes = 0,
-            NoVotes = 0
+            Side1Votes = 0,
+            Side2Votes = 0
         };
 
         return CreatedAtAction(nameof(GetQuestion), new { id = question.Id }, questionDto);
@@ -127,7 +137,8 @@ public class QuestionsController : ControllerBase
     [Authorize]
     public async Task<ActionResult<IEnumerable<QuestionDto>>> GetUserQuestions()
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
         if (userId == null)
             return Unauthorized();
 
@@ -141,10 +152,12 @@ public class QuestionsController : ControllerBase
                 Id = q.Id,
                 Title = q.Title,
                 Description = q.Description,
+                Side1Text = q.Side1Text,
+                Side2Text = q.Side2Text,
                 Author = q.User.UserName ?? string.Empty,
                 CreatedAt = q.CreatedAt,
-                YesVotes = q.Votes.Count(v => v.IsYes),
-                NoVotes = q.Votes.Count(v => !v.IsYes)
+                Side1Votes = q.Votes.Count(v => v.Choice == VoteChoice.Side1),
+                Side2Votes = q.Votes.Count(v => v.Choice == VoteChoice.Side2)
             })
             .ToListAsync();
 
@@ -155,7 +168,8 @@ public class QuestionsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> DeleteQuestion(int id)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
         if (userId == null)
             return Unauthorized();
 

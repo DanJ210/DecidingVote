@@ -40,8 +40,8 @@
           <div v-for="question in userQuestions" :key="question.id" class="question-item">
             <h4>{{ question.title }}</h4>
             <p class="question-stats">
-              {{ question.yesVotes }} Yes • {{ question.noVotes }} No • 
-              Total: {{ question.yesVotes + question.noVotes }} votes
+              {{ question.side1Votes }} {{ question.side1Text }} • {{ question.side2Votes }} {{ question.side2Text }} • 
+              Total: {{ question.side1Votes + question.side2Votes }} votes
             </p>
             <p class="question-date">{{ formatDate(question.createdAt) }}</p>
           </div>
@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import axios from 'axios'
+import api from '../plugins/axios'
 
 interface User {
   id: number
@@ -69,9 +69,11 @@ interface Question {
   id: number
   title: string
   description: string
+  side1Text: string
+  side2Text: string
   createdAt: string
-  yesVotes: number
-  noVotes: number
+  side1Votes: number
+  side2Votes: number
 }
 
 const user = ref<User>({} as User)
@@ -86,10 +88,7 @@ onMounted(async () => {
 
 async function fetchProfile() {
   try {
-    const token = localStorage.getItem('authToken')
-    const response = await axios.get('/api/auth/profile', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const response = await api.get('/auth/profile')
     user.value = response.data
   } catch (err) {
     error.value = 'Failed to load profile'
@@ -101,10 +100,7 @@ async function fetchProfile() {
 
 async function fetchUserQuestions() {
   try {
-    const token = localStorage.getItem('authToken')
-    const response = await axios.get('/api/questions/user', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const response = await api.get('/questions/user')
     userQuestions.value = response.data
   } catch (err) {
     console.error('Error fetching user questions:', err)

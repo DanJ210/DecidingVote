@@ -24,6 +24,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Description).IsRequired().HasMaxLength(1000);
+            entity.Property(e => e.Side1Text).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Side2Text).IsRequired().HasMaxLength(200);
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
 
@@ -39,7 +41,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.Id);
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.QuestionId).IsRequired();
-            entity.Property(e => e.IsYes).IsRequired();
+            entity.Property(e => e.Choice).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
 
             entity.HasOne(e => e.User)

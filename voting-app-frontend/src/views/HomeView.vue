@@ -8,7 +8,7 @@
       <div class="steps">
         <div class="step">
           <h3>1. Create</h3>
-          <p>Post your question and let others vote</p>
+          <p>Have a discussion to work out between you and your friend? Want to prove your significant other wrong? Let the community decide!</p>
         </div>
         <div class="step">
           <h3>2. Vote</h3>
@@ -23,13 +23,16 @@
 
     <div class="cta-section">
       <RouterLink to="/questions" class="btn">Browse Questions</RouterLink>
-      <RouterLink to="/register" class="btn btn-success">Get Started</RouterLink>
+      <RouterLink :to="isAuthenticated ? '/questions' : '/register'" class="btn btn-success">Get Started</RouterLink>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { useAuth } from '../composables/useAuth'
+
+const { isAuthenticated } = useAuth()
 </script>
 
 <style scoped>

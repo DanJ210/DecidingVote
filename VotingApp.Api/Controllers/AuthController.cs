@@ -143,21 +143,28 @@ public class AuthController : ControllerBase
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
+            // Standard JWT subject claim
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Name, user.UserName!),
-            new Claim(ClaimTypes.Email, user.Email!)
+            new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+            new Claim(ClaimTypes.Email, user.Email ?? string.Empty)
         };
 
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"] ?? "VotingApp",
-            audience: _configuration["Jwt:Audience"] ?? "VotingApp",
-            claims: claims,
-            expires: DateTime.Now.AddDays(7),
-            signingCredentials: creds);
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddDays(7),
+            NotBefore = DateTime.UtcNow,
+            Issuer = _configuration["Jwt:Issuer"] ?? "VotingApp",
+            Audience = _configuration["Jwt:Audience"] ?? "VotingApp",
+            SigningCredentials = creds
+        };
 
-        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var tokenString = tokenHandler.WriteToken(token);
         
         // Debug logging
         Console.WriteLine($"Generated JWT token for user {user.UserName}");

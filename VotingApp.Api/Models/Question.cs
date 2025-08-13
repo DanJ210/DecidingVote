@@ -16,6 +16,14 @@ public class Question
     public string Description { get; set; } = string.Empty;
 
     [Required]
+    [StringLength(200)]
+    public string Side1Text { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(200)]
+    public string Side2Text { get; set; } = string.Empty;
+
+    [Required]
     public string UserId { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -27,8 +35,8 @@ public class Question
 
     // Computed properties
     [NotMapped]
-    public int YesVotes => Votes?.Count(v => v.IsYes) ?? 0;
+    public int Side1Votes => Votes?.Count(v => v.Choice == VoteChoice.Side1) ?? 0;
 
     [NotMapped]
-    public int NoVotes => Votes?.Count(v => !v.IsYes) ?? 0;
+    public int Side2Votes => Votes?.Count(v => v.Choice == VoteChoice.Side2) ?? 0;
 }

@@ -1,6 +1,99 @@
-@VotingApp.Api_HostAddress = http://localhost:5244
+@host = http://localhost:5244
+@json = application/json
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2Y2M5NTI2OS0wZTk5LTRlMTMtOGM0ZC03N2JhZWE5ZGI4NDMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjZjYzk1MjY5LTBlOTktNGUxMy04YzRkLTc3YmFlYTlkYjg0MyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJhbGljZSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFsaWNlQGV4YW1wbGUuY29tIiwibmJmIjoxNzU0ODg2OTQ1LCJleHAiOjE3NTU0OTE3NDUsImlzcyI6IlZvdGluZ0FwcCIsImF1ZCI6IlZvdGluZ0FwcCJ9.H2ltVu0-ImtTIGsy9OHhKXqj8gea2OBzhNAWI_B1G24
 
-GET {{VotingApp.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Get all questions (public)
+GET {{host}}/api/questions
+Accept: {{json}}
 
-###
+### Register
+POST {{host}}/api/auth/register
+Content-Type: {{json}}
+
+{
+	"username": "alice5",
+	"email": "alice5@example.com",
+	"password": "Passw0rd1"
+}
+
+### Login (captures token via response reference)
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: {{json}}
+
+{
+	"email": "alice5@example.com",
+	"password": "Passw0rd1"
+}
+
+### Show captured token (for debugging)
+GET {{host}}/api/auth/profile
+Accept: {{json}}
+Authorization: Bearer {{login.response.body.$.token}}
+
+### Create a question with custom side text (requires auth)
+POST {{host}}/api/questions
+Content-Type: {{json}}
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+	"title": "Pizza vs Tacos for dinner?",
+	"description": "We can't decide what to have for dinner tonight!",
+	"side1Text": "Pizza Night",
+	"side2Text": "Taco Tuesday"
+}
+
+### Get your questions (requires auth)
+GET {{host}}/api/questions/user
+Accept: {{json}}
+Authorization: Bearer {{login.response.body.$.token}}
+
+### Vote on a question - Side 1 (requires auth)
+POST {{host}}/api/votes
+Content-Type: {{json}}
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+	"questionId": 1,
+	"choice": 1
+}
+
+### Check if vote can be changed (requires auth)
+GET {{host}}/api/votes/can-change/1
+Accept: {{json}}
+Authorization: Bearer {{login.response.body.$.token}}
+
+### Change vote to Side 2 (requires auth)
+PUT {{host}}/api/votes/change
+Content-Type: {{json}}
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+	"questionId": 1,
+	"choice": 2
+}
+
+### Vote on a question - Side 2 (requires auth)  
+POST {{host}}/api/votes
+Content-Type: {{json}}
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+	"questionId": 2,
+	"choice": 2
+}
+
+### Get your votes (requires auth)
+GET {{host}}/api/votes/user
+Accept: {{json}}
+Authorization: Bearer {{login.response.body.$.token}}
+
+### Get vote summary for a question (public)
+GET {{host}}/api/votes/question/1
+Accept: {{json}}
+
+### Test JWT (requires auth)
+GET {{host}}/api/auth/test
+Accept: {{json}}
+Authorization: Bearer {{login.response.body.$.token}}
+

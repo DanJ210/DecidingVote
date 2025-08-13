@@ -3,13 +3,16 @@ import { RouterLink, RouterView } from 'vue-router'
 import { useAuth } from './composables/useAuth'
 import { useRouter } from 'vue-router'
 
-const { isAuthenticated, logout: authLogout } = useAuth()
+const { isAuthenticated, logout: authLogout, checkAuth } = useAuth()
 const router = useRouter()
 
 function logout() {
   authLogout()
   router.push('/')
 }
+
+// Ensure navbar reflects persisted auth on first render
+checkAuth()
 </script>
 
 <template>

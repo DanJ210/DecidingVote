@@ -14,9 +14,11 @@ public class Vote
     public int QuestionId { get; set; }
 
     [Required]
-    public bool IsYes { get; set; }
+    public VoteChoice Choice { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    public DateTime LastModifiedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation properties
     [ForeignKey("UserId")]

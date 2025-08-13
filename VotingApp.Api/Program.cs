@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using VotingApp.Api.Data;
 using VotingApp.Api.Models;
+using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,22 +52,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudience = builder.Configuration["Jwt:Audience"] ?? "VotingApp",
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
-    };
-    
-    // Add event handlers for debugging
-    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
-    {
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine($"JWT Authentication failed: {context.Exception.Message}");
-            return Task.CompletedTask;
-        },
-        OnChallenge = context =>
-        {
-            Console.WriteLine($"JWT Challenge: {context.Error}, {context.ErrorDescription}");
-            return Task.CompletedTask;
-        }
+        // Allow a small clock skew to avoid transient 401 around token issuance
+        ClockSkew = TimeSpan.FromMinutes(2)
     };
 });
 
@@ -99,13 +86,14 @@ app.UseCors("AllowFrontend");
 // Add request logging middleware for debugging
 app.Use(async (context, next) =>
 {
-    if (context.Request.Path.StartsWithSegments("/api/questions") && context.Request.Method == "POST")
+    if (context.Request.Path.StartsWithSegments("/api"))
     {
-        Console.WriteLine("=== Incoming POST /api/questions request ===");
-        Console.WriteLine($"Headers:");
-        foreach (var header in context.Request.Headers)
+        Console.WriteLine($"=== Incoming {context.Request.Method} {context.Request.Path} request ===");
+        var auth = context.Request.Headers["Authorization"].ToString();
+        if (!string.IsNullOrEmpty(auth))
         {
-            Console.WriteLine($"  {header.Key}: {header.Value}");
+            var preview = auth.Length > 40 ? auth.Substring(0, 40) + "..." : auth;
+            Console.WriteLine($"Authorization: {preview}");
         }
     }
     await next();

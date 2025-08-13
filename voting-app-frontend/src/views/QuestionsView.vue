@@ -26,32 +26,55 @@
           <p class="question-text">{{ question.description }}</p>
           
           <div class="vote-buttons" v-if="isAuthenticated && !hasUserVoted(question.id)">
-            <button @click="vote(question.id, true)" class="btn btn-success">
-              Yes ({{ question.yesVotes }})
+            <button @click="vote(question.id, 1)" class="btn btn-primary">
+              {{ question.side1Text }} ({{ question.side1Votes }})
             </button>
-            <button @click="vote(question.id, false)" class="btn btn-danger">
-              No ({{ question.noVotes }})
+            <button @click="vote(question.id, 2)" class="btn btn-secondary">
+              {{ question.side2Text }} ({{ question.side2Votes }})
             </button>
+          </div>
+          
+          <div v-else-if="isAuthenticated && hasUserVoted(question.id) && canChangeVote(question.id)" class="vote-change-section">
+            <div class="current-vote">
+              <p><strong>Your vote:</strong> {{ getUserVoteChoice(question.id) === 1 ? question.side1Text : question.side2Text }}</p>
+              <p class="time-remaining">{{ getTimeRemaining(question.id) }} to change your vote</p>
+            </div>
+            <div class="vote-buttons">
+              <button 
+                @click="changeVote(question.id, 1)" 
+                class="btn"
+                :class="getUserVoteChoice(question.id) === 1 ? 'btn-primary' : 'btn-outline'"
+              >
+                {{ question.side1Text }} ({{ question.side1Votes }})
+              </button>
+              <button 
+                @click="changeVote(question.id, 2)" 
+                class="btn"
+                :class="getUserVoteChoice(question.id) === 2 ? 'btn-secondary' : 'btn-outline'"
+              >
+                {{ question.side2Text }} ({{ question.side2Votes }})
+              </button>
+            </div>
           </div>
           
           <div v-else class="vote-results">
             <div class="vote-stats">
               <div class="vote-option">
-                <span class="vote-label">Yes:</span>
-                <span class="vote-count">{{ question.yesVotes }}</span>
+                <span class="vote-label">{{ question.side1Text }}:</span>
+                <span class="vote-count">{{ question.side1Votes }}</span>
                 <div class="vote-bar">
-                  <div class="vote-fill yes" :style="{ width: getYesPercentage(question) + '%' }"></div>
+                  <div class="vote-fill side1" :style="{ width: getSide1Percentage(question) + '%' }"></div>
                 </div>
               </div>
               <div class="vote-option">
-                <span class="vote-label">No:</span>
-                <span class="vote-count">{{ question.noVotes }}</span>
+                <span class="vote-label">{{ question.side2Text }}:</span>
+                <span class="vote-count">{{ question.side2Votes }}</span>
                 <div class="vote-bar">
-                  <div class="vote-fill no" :style="{ width: getNoPercentage(question) + '%' }"></div>
+                  <div class="vote-fill side2" :style="{ width: getSide2Percentage(question) + '%' }"></div>
                 </div>
               </div>
             </div>
-            <p class="total-votes">Total votes: {{ question.yesVotes + question.noVotes }}</p>
+            <p class="total-votes">Total votes: {{ question.side1Votes + question.side2Votes }}</p>
           </div>
         </div>
       </div>
@@ -62,24 +85,39 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import axios from 'axios'
+import api from '../plugins/axios'
+import { useAuth } from '../composables/useAuth'
 
 interface Question {
   id: number
   title: string
   description: string
+  side1Text: string
+  side2Text: string
   author: string
   createdAt: string
-  yesVotes: number
-  noVotes: number
+  side1Votes: number
+  side2Votes: number
+}
+
+interface VoteChangeStatus {
+  canChange: boolean
+  hasVoted: boolean
+  currentChoice?: number
+  hoursSinceVote?: number
+  hoursRemaining?: number
+  votedAt?: string
+  lastModified?: string
 }
 
 const questions = ref<Question[]>([])
 const loading = ref(true)
 const error = ref('')
-const userVotes = ref<Record<number, boolean>>({})
+const userVotes = ref<Record<number, number>>({})
+const voteChangeStatus = ref<Record<number, VoteChangeStatus>>({})
 
-const isAuthenticated = computed(() => !!localStorage.getItem('authToken'))
+// Use global auth state so navbar and views stay in sync
+const { isAuthenticated } = useAuth()
 
 onMounted(async () => {
   await fetchQuestions()
@@ -90,7 +128,7 @@ onMounted(async () => {
 
 async function fetchQuestions() {
   try {
-    const response = await axios.get('/api/questions')
+  const response = await api.get('/questions')
     questions.value = response.data
   } catch (err) {
     error.value = 'Failed to load questions'
@@ -102,41 +140,86 @@ async function fetchQuestions() {
 
 async function fetchUserVotes() {
   try {
-    const token = localStorage.getItem('authToken')
-    const response = await axios.get('/api/votes/user', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    userVotes.value = response.data.reduce((acc: Record<number, boolean>, vote: any) => {
-      acc[vote.questionId] = vote.isYes
+    const response = await api.get('/votes/user')
+    userVotes.value = response.data.reduce((acc: Record<number, number>, vote: any) => {
+      acc[vote.questionId] = vote.choice
       return acc
     }, {})
+    
+    // Fetch vote change status for each voted question
+    for (const questionId of Object.keys(userVotes.value)) {
+      await checkVoteChangeStatus(parseInt(questionId))
+    }
   } catch (err) {
     console.error('Error fetching user votes:', err)
   }
 }
 
-async function vote(questionId: number, isYes: boolean) {
+async function checkVoteChangeStatus(questionId: number) {
   try {
-    const token = localStorage.getItem('authToken')
-    await axios.post('/api/votes', 
-      { questionId, isYes },
-      { headers: { Authorization: `Bearer ${token}` } }
-    )
+    const response = await api.get(`/votes/can-change/${questionId}`)
+    voteChangeStatus.value[questionId] = response.data
+  } catch (err) {
+    console.error('Error checking vote change status:', err)
+  }
+}
+
+async function vote(questionId: number, choice: number) {
+  try {
+    await api.post('/votes', { questionId, choice })
     
-    userVotes.value[questionId] = isYes
+    userVotes.value[questionId] = choice
     
     // Update the question vote counts
     const question = questions.value.find(q => q.id === questionId)
     if (question) {
-      if (isYes) {
-        question.yesVotes++
+      if (choice === 1) {
+        question.side1Votes++
       } else {
-        question.noVotes++
+        question.side2Votes++
       }
     }
+    
+    // Check vote change status after voting
+    await checkVoteChangeStatus(questionId)
   } catch (err) {
     console.error('Error voting:', err)
     alert('Failed to submit vote. Please try again.')
+  }
+}
+
+async function changeVote(questionId: number, newChoice: number) {
+  const currentChoice = userVotes.value[questionId]
+  
+  try {
+    await api.put('/votes/change', { questionId, choice: newChoice })
+    
+    // Update local vote record
+    userVotes.value[questionId] = newChoice
+    
+    // Update question vote counts
+    const question = questions.value.find(q => q.id === questionId)
+    if (question) {
+      // Remove old vote count
+      if (currentChoice === 1) {
+        question.side1Votes--
+      } else {
+        question.side2Votes--
+      }
+      
+      // Add new vote count
+      if (newChoice === 1) {
+        question.side1Votes++
+      } else {
+        question.side2Votes++
+      }
+    }
+    
+    // Update vote change status
+    await checkVoteChangeStatus(questionId)
+  } catch (err: any) {
+    console.error('Error changing vote:', err)
+    alert(err.response?.data?.message || 'Failed to change vote. Please try again.')
   }
 }
 
@@ -144,18 +227,41 @@ function hasUserVoted(questionId: number): boolean {
   return questionId in userVotes.value
 }
 
+function canChangeVote(questionId: number): boolean {
+  const status = voteChangeStatus.value[questionId]
+  return status?.canChange ?? false
+}
+
+function getUserVoteChoice(questionId: number): number | undefined {
+  return userVotes.value[questionId]
+}
+
+function getTimeRemaining(questionId: number): string {
+  const status = voteChangeStatus.value[questionId]
+  if (!status?.hoursRemaining) return ''
+  
+  const hours = Math.floor(status.hoursRemaining)
+  const minutes = Math.round((status.hoursRemaining - hours) * 60)
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m remaining`
+  } else {
+    return `${minutes}m remaining`
+  }
+}
+
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString()
 }
 
-function getYesPercentage(question: Question): number {
-  const total = question.yesVotes + question.noVotes
-  return total === 0 ? 0 : (question.yesVotes / total) * 100
+function getSide1Percentage(question: Question): number {
+  const total = question.side1Votes + question.side2Votes
+  return total === 0 ? 0 : (question.side1Votes / total) * 100
 }
 
-function getNoPercentage(question: Question): number {
-  const total = question.yesVotes + question.noVotes
-  return total === 0 ? 0 : (question.noVotes / total) * 100
+function getSide2Percentage(question: Question): number {
+  const total = question.side1Votes + question.side2Votes
+  return total === 0 ? 0 : (question.side2Votes / total) * 100
 }
 </script>
 
@@ -215,18 +321,56 @@ function getNoPercentage(question: Question): number {
   transition: width 0.3s ease;
 }
 
-.vote-fill.yes {
-  background: #27ae60;
+.vote-fill.side1 {
+  background: #3498db;
 }
 
-.vote-fill.no {
-  background: #e74c3c;
+.vote-fill.side2 {
+  background: #9b59b6;
 }
 
 .total-votes {
   margin-top: 1rem;
   font-size: 0.9rem;
   color: #666;
+}
+
+.vote-change-section {
+  margin-top: 1rem;
+}
+
+.current-vote {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.current-vote p {
+  margin: 0 0 0.5rem 0;
+}
+
+.current-vote p:last-child {
+  margin-bottom: 0;
+}
+
+.time-remaining {
+  color: #28a745;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #ddd;
+  color: #666;
+}
+
+.btn-outline:hover {
+  background: #f8f9fa;
+  border-color: #bbb;
+  color: #333;
 }
 
 .no-questions {

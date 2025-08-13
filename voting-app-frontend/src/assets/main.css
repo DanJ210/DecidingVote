@@ -84,6 +84,22 @@ body {
   background: #c0392b;
 }
 
+.btn-primary {
+  background: #3498db;
+}
+
+.btn-primary:hover {
+  background: #2980b9;
+}
+
+.btn-secondary {
+  background: #9b59b6;
+}
+
+.btn-secondary:hover {
+  background: #8e44ad;
+}
+
 /* Card styles */
 .card {
   border: 1px solid #ddd;
