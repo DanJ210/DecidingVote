@@ -1,42 +1,22 @@
 <template>
-  <div class="login">
-    <h1>Login</h1>
-    
-  <form @submit.prevent="handleLogin" class="form-container" autocomplete="off">
-      <div class="form-group">
-        <label for="email">Email *</label>
-        <input
-          id="email"
-          v-model="form.email"
-          type="email"
-          required
-          placeholder="Enter your email"
-          autocomplete="email"
-        />
+  <div class="mx-auto max-w-sm">
+    <h1 class="mb-6 text-3xl font-semibold tracking-tight text-slate-800">Login</h1>
+    <form @submit.prevent="handleLogin" autocomplete="off" class="card space-y-6">
+      <div class="space-y-1.5">
+        <label for="email" class="block text-sm font-medium text-slate-700">Email *</label>
+        <input id="email" v-model="form.email" type="email" required placeholder="Enter your email" autocomplete="email" class="input" />
       </div>
-      
-      <div class="form-group">
-        <label for="password">Password *</label>
-        <input
-          id="password"
-          v-model="form.password"
-          type="password"
-          required
-          placeholder="Enter your password"
-          autocomplete="current-password"
-        />
+      <div class="space-y-1.5">
+        <label for="password" class="block text-sm font-medium text-slate-700">Password *</label>
+        <input id="password" v-model="form.password" type="password" required placeholder="Enter your password" autocomplete="current-password" class="input" />
       </div>
-      
-      <div class="form-actions">
-        <button type="submit" class="btn btn-success" :disabled="submitting">
+      <div class="pt-2">
+        <button type="submit" class="btn btn-success w-full justify-center" :disabled="submitting">
           {{ submitting ? 'Logging in...' : 'Login' }}
         </button>
       </div>
     </form>
-    
-    <p class="register-link">
-      Don't have an account? <RouterLink to="/register">Register here</RouterLink>
-    </p>
+    <p class="mt-6 text-center text-sm text-slate-600">Don't have an account? <RouterLink to="/register" class="font-medium text-primary hover:underline">Register here</RouterLink></p>
   </div>
 </template>
 
@@ -85,26 +65,5 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-.login {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.form-actions {
-  margin-top: 2rem;
-}
-
-.register-link {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.register-link a {
-  color: #3498db;
-  text-decoration: none;
-}
-
-.register-link a:hover {
-  text-decoration: underline;
-}
+/* Post-migration minimal scoped styles (none needed) */
 </style>

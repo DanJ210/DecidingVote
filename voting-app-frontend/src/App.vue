@@ -2,8 +2,10 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { useAuth } from './composables/useAuth'
 import { useRouter } from 'vue-router'
+import { useColorMode } from './composables/useColorMode'
 
 const { isAuthenticated, logout: authLogout, checkAuth } = useAuth()
+const { mode, toggle: toggleColorMode } = useColorMode()
 const router = useRouter()
 
 function logout() {
@@ -16,96 +18,43 @@ checkAuth()
 </script>
 
 <template>
-  <div id="app">
-    <header>
-      <nav class="navbar">
-        <div class="nav-brand">
-          <RouterLink to="/">VotingApp</RouterLink>
+  <div id="app" class="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
+    <header class="border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-700 dark:bg-slate-900/80 dark:supports-[backdrop-filter]:bg-slate-900/60">
+      <nav class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4">
+        <div class="flex items-center gap-4">
+          <RouterLink to="/" class="text-xl font-semibold tracking-tight text-slate-800 dark:text-slate-100">DecidingVote</RouterLink>
+          <button @click="toggleColorMode" class="btn btn-outline btn-sm flex items-center gap-1" :aria-label="mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+            <span v-if="mode === 'dark'">🌞 Light</span>
+            <span v-else>🌙 Dark</span>
+          </button>
         </div>
-        <div class="nav-links">
-          <RouterLink to="/">Home</RouterLink>
-          <RouterLink to="/questions">Questions</RouterLink>
+        <div class="flex items-center gap-2 text-sm font-medium">
+          <RouterLink to="/" class="nav-link">Home</RouterLink>
+          <RouterLink to="/questions" class="nav-link">Questions</RouterLink>
           <template v-if="isAuthenticated">
-            <RouterLink to="/create">Create Poll</RouterLink>
-            <RouterLink to="/profile">Profile</RouterLink>
-            <button @click="logout" class="logout-btn">Logout</button>
+            <RouterLink to="/create" class="nav-link">Create Poll</RouterLink>
+            <RouterLink to="/profile" class="nav-link">Profile</RouterLink>
+            <button @click="logout" class="btn btn-danger btn-sm">Logout</button>
           </template>
           <template v-else>
-            <RouterLink to="/login">Login</RouterLink>
-            <RouterLink to="/register">Register</RouterLink>
+            <RouterLink to="/login" class="nav-link">Login</RouterLink>
+            <RouterLink to="/register" class="btn btn-success btn-sm">Register</RouterLink>
           </template>
         </div>
       </nav>
     </header>
-
-    <main>
+    <main class="flex-1 px-6 py-10">
       <RouterView />
     </main>
-
-    <footer>
-      <p>&copy; 2025 VotingApp. All rights reserved.</p>
+    <footer class="border-t border-slate-200 bg-white/80 py-6 text-center text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-400">
+      <p>&copy; 2025 DecidingVote. All rights reserved.</p>
     </footer>
   </div>
 </template>
 
 <style scoped>
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background-color: #2c3e50;
-  color: white;
+.nav-link {
+  @apply rounded-md px-3 py-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100;
 }
-
-.nav-brand a {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-  text-decoration: none;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.nav-links a {
-  color: white;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.nav-links a:hover {
-  background-color: #34495e;
-}
-
-.logout-btn {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.logout-btn:hover {
-  background-color: #c0392b;
-}
-
-main {
-  min-height: calc(100vh - 120px);
-  padding: 2rem;
-}
-
-footer {
-  background-color: #2c3e50;
-  color: white;
-  text-align: center;
-  padding: 1rem;
-}
+/* Post-migration scoped utility composition for nav links */
 </style>

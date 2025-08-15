@@ -1,80 +1,78 @@
 <template>
-  <div class="questions">
-    <h1>All Questions</h1>
+  <div class="max-w-5xl mx-auto px-4">
+    <h1 class="text-3xl font-bold mb-6 text-slate-800 dark:text-slate-100">All Questions</h1>
     
-    <div v-if="loading" class="loading">
-      Loading questions...
-    </div>
-    
-    <div v-else-if="error" class="error">
-      {{ error }}
-    </div>
+  <div v-if="loading" class="py-8 text-center text-gray-500 dark:text-slate-400">Loading questions...</div>
+  <div v-else-if="error" class="mb-6 rounded border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300">{{ error }}</div>
     
     <div v-else>
-      <div v-if="questions.length === 0" class="no-questions">
-        <p>No questions found. Be the first to create one!</p>
-        <RouterLink to="/create" class="btn">Create Question</RouterLink>
+      <div v-if="questions.length === 0" class="py-16 text-center">
+        <p class="text-gray-600 dark:text-slate-400">No questions found. Be the first to create one!</p>
+        <RouterLink to="/create" class="mt-4 inline-block rounded bg-primary px-5 py-2.5 font-medium text-white transition hover:bg-primary/80">Create Question</RouterLink>
       </div>
       
-      <div v-else class="questions-list">
-        <div v-for="question in questions" :key="question.id" class="card">
-          <div class="card-header">
-            <h3>{{ question.title }}</h3>
-            <p class="author">By {{ question.author }} • {{ formatDate(question.createdAt) }}</p>
+      <div v-else class="space-y-6">
+        <div v-for="question in questions" :key="question.id" class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <div class="mb-4 border-b border-gray-100 pb-4 dark:border-slate-700">
+            <h3 class="text-xl font-semibold leading-snug text-slate-800 dark:text-slate-100">{{ question.title }}</h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">By {{ question.author }} • {{ formatDate(question.createdAt) }}</p>
           </div>
+          <p class="mb-4 leading-relaxed text-gray-700 dark:text-slate-300">{{ question.description }}</p>
           
-          <p class="question-text">{{ question.description }}</p>
-          
-          <div class="vote-buttons" v-if="isAuthenticated && !hasUserVoted(question.id)">
-            <button @click="vote(question.id, 1)" class="btn btn-primary">
+          <div v-if="isAuthenticated && !hasUserVoted(question.id)" class="flex gap-3 mt-2">
+            <button @click="vote(question.id, 1)" class="px-4 py-2.5 rounded bg-primary text-white font-medium hover:bg-primary/80 transition text-sm">
               {{ question.side1Text }} ({{ question.side1Votes }})
             </button>
-            <button @click="vote(question.id, 2)" class="btn btn-secondary">
+            <button @click="vote(question.id, 2)" class="px-4 py-2.5 rounded bg-secondary text-white font-medium hover:bg-secondary/80 transition text-sm">
               {{ question.side2Text }} ({{ question.side2Votes }})
             </button>
           </div>
           
-          <div v-else-if="isAuthenticated && hasUserVoted(question.id) && canChangeVote(question.id)" class="vote-change-section">
-            <div class="current-vote">
-              <p><strong>Your vote:</strong> {{ getUserVoteChoice(question.id) === 1 ? question.side1Text : question.side2Text }}</p>
-              <p class="time-remaining">{{ getTimeRemaining(question.id) }} to change your vote</p>
+          <div v-else-if="isAuthenticated && hasUserVoted(question.id) && canChangeVote(question.id)" class="mt-3">
+            <div class="mb-3 rounded-md border border-gray-200 bg-gray-50 p-3 text-sm dark:border-slate-600 dark:bg-slate-700/50 dark:text-slate-200">
+              <p class="mb-1"><span class="font-semibold">Your vote:</span> {{ getUserVoteChoice(question.id) === 1 ? question.side1Text : question.side2Text }}</p>
+              <p class="font-medium text-green-600 dark:text-green-400">{{ getTimeRemaining(question.id) }} to change your vote</p>
             </div>
-            <div class="vote-buttons">
+            <div class="flex gap-3">
               <button 
-                @click="changeVote(question.id, 1)" 
-                class="btn"
-                :class="getUserVoteChoice(question.id) === 1 ? 'btn-primary' : 'btn-outline'"
+                @click="changeVote(question.id, 1)"
+                class="px-4 py-2.5 rounded font-medium border text-sm transition"
+                :class="getUserVoteChoice(question.id) === 1 
+                  ? 'bg-primary text-white border-primary hover:bg-primary/80' 
+                  : 'border-gray-300 text-gray-600 hover:bg-gray-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'"
               >
                 {{ question.side1Text }} ({{ question.side1Votes }})
               </button>
               <button 
-                @click="changeVote(question.id, 2)" 
-                class="btn"
-                :class="getUserVoteChoice(question.id) === 2 ? 'btn-secondary' : 'btn-outline'"
+                @click="changeVote(question.id, 2)"
+                class="px-4 py-2.5 rounded font-medium border text-sm transition"
+                :class="getUserVoteChoice(question.id) === 2 
+                  ? 'bg-secondary text-white border-secondary hover:bg-secondary/80' 
+                  : 'border-gray-300 text-gray-600 hover:bg-gray-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'"
               >
                 {{ question.side2Text }} ({{ question.side2Votes }})
               </button>
             </div>
           </div>
           
-          <div v-else class="vote-results">
-            <div class="vote-stats">
-              <div class="vote-option">
-                <span class="vote-label">{{ question.side1Text }}:</span>
-                <span class="vote-count">{{ question.side1Votes }}</span>
-                <div class="vote-bar">
-                  <div class="vote-fill side1" :style="{ width: getSide1Percentage(question) + '%' }"></div>
+          <div v-else class="mt-4">
+            <div class="flex flex-col gap-4">
+              <div class="flex items-center gap-3">
+                <span class="min-w-16 text-sm font-medium text-gray-700 dark:text-slate-300">{{ question.side1Text }}:</span>
+                <span class="w-8 text-right text-sm text-gray-600 dark:text-slate-400">{{ question.side1Votes }}</span>
+                <div class="flex-1 h-5 overflow-hidden rounded-full bg-gray-200 dark:bg-slate-700">
+                  <div class="h-full bg-primary transition-all" :style="{ width: getSide1Percentage(question) + '%' }"></div>
                 </div>
               </div>
-              <div class="vote-option">
-                <span class="vote-label">{{ question.side2Text }}:</span>
-                <span class="vote-count">{{ question.side2Votes }}</span>
-                <div class="vote-bar">
-                  <div class="vote-fill side2" :style="{ width: getSide2Percentage(question) + '%' }"></div>
+              <div class="flex items-center gap-3">
+                <span class="min-w-16 text-sm font-medium text-gray-700 dark:text-slate-300">{{ question.side2Text }}:</span>
+                <span class="w-8 text-right text-sm text-gray-600 dark:text-slate-400">{{ question.side2Votes }}</span>
+                <div class="flex-1 h-5 overflow-hidden rounded-full bg-gray-200 dark:bg-slate-700">
+                  <div class="h-full bg-secondary transition-all" :style="{ width: getSide2Percentage(question) + '%' }"></div>
                 </div>
               </div>
             </div>
-            <p class="total-votes">Total votes: {{ question.side1Votes + question.side2Votes }}</p>
+            <p class="mt-3 text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">Total votes: {{ question.side1Votes + question.side2Votes }}</p>
           </div>
         </div>
       </div>

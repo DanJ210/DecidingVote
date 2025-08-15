@@ -1,10 +1,9 @@
 <template>
-  <div class="create-poll">
-    <h1>Create New Poll</h1>
-    
-    <form @submit.prevent="submitPoll" class="form-container">
-      <div class="form-group">
-        <label for="title">Question Title *</label>
+  <div class="mx-auto max-w-2xl">
+    <h1 class="mb-6 text-3xl font-semibold tracking-tight text-slate-800">Create New Poll</h1>
+    <form @submit.prevent="submitPoll" class="card space-y-6">
+      <div class="space-y-1.5">
+        <label for="title" class="block text-sm font-medium text-slate-700">Question Title *</label>
         <input
           id="title"
           v-model="form.title"
@@ -12,25 +11,25 @@
           required
           placeholder="Enter your question title"
           maxlength="200"
+          class="input"
         />
       </div>
-      
-      <div class="form-group">
-        <label for="description">Question Description *</label>
+      <div class="space-y-1.5">
+        <label for="description" class="block text-sm font-medium text-slate-700">Question Description *</label>
         <textarea
           id="description"
           v-model="form.description"
           required
           placeholder="Provide more details about your question"
           maxlength="1000"
+          class="textarea"
         ></textarea>
       </div>
-      
-      <div class="voting-options">
-        <h3>Voting Options</h3>
-        <div class="options-grid">
-          <div class="form-group">
-            <label for="side1Text">Option 1 *</label>
+      <div>
+        <h3 class="mb-4 border-b border-slate-200 pb-2 text-lg font-medium text-slate-800">Voting Options</h3>
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="space-y-1.5">
+            <label for="side1Text" class="block text-sm font-medium text-slate-700">Option 1 *</label>
             <input
               id="side1Text"
               v-model="form.side1Text"
@@ -38,11 +37,11 @@
               required
               placeholder="e.g., Pizza, Yes, Option A"
               maxlength="200"
+              class="input"
             />
           </div>
-          
-          <div class="form-group">
-            <label for="side2Text">Option 2 *</label>
+          <div class="space-y-1.5">
+            <label for="side2Text" class="block text-sm font-medium text-slate-700">Option 2 *</label>
             <input
               id="side2Text"
               v-model="form.side2Text"
@@ -50,16 +49,16 @@
               required
               placeholder="e.g., Tacos, No, Option B"
               maxlength="200"
+              class="input"
             />
           </div>
         </div>
       </div>
-      
-      <div class="form-actions">
+      <div class="flex flex-wrap items-center gap-4 pt-2">
         <button type="submit" class="btn btn-success" :disabled="submitting">
           {{ submitting ? 'Creating...' : 'Create Poll' }}
         </button>
-        <RouterLink to="/questions" class="btn">Cancel</RouterLink>
+        <RouterLink to="/questions" class="btn btn-outline">Cancel</RouterLink>
       </div>
     </form>
   </div>
@@ -112,42 +111,5 @@ async function submitPoll() {
 </script>
 
 <style scoped>
-.create-poll {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.voting-options {
-  margin-top: 2rem;
-}
-
-.voting-options h3 {
-  margin-bottom: 1rem;
-  color: #333;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 0.5rem;
-}
-
-.options-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-@media (max-width: 768px) {
-  .options-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.form-actions .btn {
-  text-decoration: none;
-}
+/* Scoped block intentionally minimal post-migration */
 </style>

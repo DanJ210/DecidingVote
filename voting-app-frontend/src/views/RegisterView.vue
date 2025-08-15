@@ -1,87 +1,47 @@
 <template>
-  <div class="register">
-    <h1>Register</h1>
-    <ul v-if="generalErrors.length" class="errors">
-      <li v-for="(e, i) in generalErrors" :key="i">{{ e }}</li>
-    </ul>
-    
-  <form @submit.prevent="handleRegister" class="form-container" autocomplete="off">
-      <div class="form-group">
-        <label for="username">Username *</label>
-        <input
-          id="username"
-          v-model="form.username"
-          type="text"
-          required
-          placeholder="Choose a username"
-          minlength="3"
-          maxlength="50"
-          pattern="[A-Za-z0-9._@+\-]+"
-          title="Use letters, numbers, and . _ @ + - only"
-          autocomplete="username"
-        />
-        <ul v-if="fieldErrors.username.length" class="field-errors">
+  <div class="mx-auto max-w-md">
+    <h1 class="mb-6 text-3xl font-semibold tracking-tight text-slate-800">Register</h1>
+    <div v-if="generalErrors.length" class="mb-6 rounded-md border border-danger/40 bg-danger/10 p-4 text-sm text-danger">
+      <ul class="list-disc space-y-1 pl-5">
+        <li v-for="(e, i) in generalErrors" :key="i">{{ e }}</li>
+      </ul>
+    </div>
+    <form @submit.prevent="handleRegister" autocomplete="off" class="card space-y-6">
+      <div class="space-y-1.5">
+        <label for="username" class="block text-sm font-medium text-slate-700">Username *</label>
+        <input id="username" v-model="form.username" type="text" required placeholder="Choose a username" minlength="3" maxlength="50" pattern="[A-Za-z0-9._@+\-]+" title="Use letters, numbers, and . _ @ + - only" autocomplete="username" class="input" />
+        <ul v-if="fieldErrors.username.length" class="space-y-0.5 pl-4 text-xs text-danger list-disc">
           <li v-for="(e, i) in fieldErrors.username" :key="'u-' + i">{{ e }}</li>
         </ul>
       </div>
-      
-      <div class="form-group">
-        <label for="email">Email *</label>
-        <input
-          id="email"
-          v-model="form.email"
-          type="email"
-          required
-          placeholder="Enter your email"
-          autocomplete="email"
-        />
-        <ul v-if="fieldErrors.email.length" class="field-errors">
+      <div class="space-y-1.5">
+        <label for="email" class="block text-sm font-medium text-slate-700">Email *</label>
+        <input id="email" v-model="form.email" type="email" required placeholder="Enter your email" autocomplete="email" class="input" />
+        <ul v-if="fieldErrors.email.length" class="space-y-0.5 pl-4 text-xs text-danger list-disc">
           <li v-for="(e, i) in fieldErrors.email" :key="'e-' + i">{{ e }}</li>
         </ul>
       </div>
-      
-      <div class="form-group">
-        <label for="password">Password *</label>
-        <input
-          id="password"
-          v-model="form.password"
-          type="password"
-          required
-          placeholder="Create a password"
-          minlength="6"
-          autocomplete="new-password"
-        />
-        <ul v-if="fieldErrors.password.length" class="field-errors">
+      <div class="space-y-1.5">
+        <label for="password" class="block text-sm font-medium text-slate-700">Password *</label>
+        <input id="password" v-model="form.password" type="password" required placeholder="Create a password" minlength="6" autocomplete="new-password" class="input" />
+        <ul v-if="fieldErrors.password.length" class="space-y-0.5 pl-4 text-xs text-danger list-disc">
           <li v-for="(e, i) in fieldErrors.password" :key="'p-' + i">{{ e }}</li>
         </ul>
       </div>
-      
-      <div class="form-group">
-        <label for="confirmPassword">Confirm Password *</label>
-        <input
-          id="confirmPassword"
-          v-model="form.confirmPassword"
-          type="password"
-          required
-          placeholder="Confirm your password"
-          minlength="6"
-          autocomplete="new-password"
-        />
-        <ul v-if="fieldErrors.confirmPassword.length" class="field-errors">
+      <div class="space-y-1.5">
+        <label for="confirmPassword" class="block text-sm font-medium text-slate-700">Confirm Password *</label>
+        <input id="confirmPassword" v-model="form.confirmPassword" type="password" required placeholder="Confirm your password" minlength="6" autocomplete="new-password" class="input" />
+        <ul v-if="fieldErrors.confirmPassword.length" class="space-y-0.5 pl-4 text-xs text-danger list-disc">
           <li v-for="(e, i) in fieldErrors.confirmPassword" :key="'c-' + i">{{ e }}</li>
         </ul>
       </div>
-      
-      <div class="form-actions">
-        <button type="submit" class="btn btn-success" :disabled="submitting">
+      <div class="pt-2">
+        <button type="submit" class="btn btn-success w-full justify-center" :disabled="submitting">
           {{ submitting ? 'Creating Account...' : 'Register' }}
         </button>
       </div>
     </form>
-    
-    <p class="login-link">
-      Already have an account? <RouterLink to="/login">Login here</RouterLink>
-    </p>
+    <p class="mt-6 text-center text-sm text-slate-600">Already have an account? <RouterLink to="/login" class="font-medium text-primary hover:underline">Login here</RouterLink></p>
   </div>
 </template>
 
@@ -182,39 +142,5 @@ async function handleRegister() {
 </script>
 
 <style scoped>
-.register {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.form-actions {
-  margin-top: 2rem;
-}
-
-.login-link {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.login-link a {
-  color: #3498db;
-  text-decoration: none;
-}
-
-.login-link a:hover {
-  text-decoration: underline;
-}
-.errors {
-  margin: 1rem 0;
-  padding: 0.75rem 1rem;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-  border-radius: 6px;
-}
-.field-errors {
-  margin: 0.5rem 0 0;
-  padding-left: 1.25rem;
-  color: #b91c1c;
-}
+/* Post-migration minimal scoped styles (none needed) */
 </style>

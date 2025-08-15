@@ -1,49 +1,40 @@
 <template>
-  <div class="profile">
-    <h1>User Profile</h1>
-    
-    <div v-if="loading" class="loading">
-      Loading profile...
-    </div>
-    
-    <div v-else-if="error" class="error">
-      {{ error }}
-    </div>
-    
-    <div v-else class="profile-content">
-      <div class="card">
-        <div class="card-header">
-          <h2>{{ user.username }}</h2>
-          <p>{{ user.email }}</p>
-          <p class="joined-date">Joined {{ formatDate(user.createdAt) }}</p>
+  <div class="mx-auto max-w-4xl">
+  <h1 class="mb-6 text-3xl font-semibold tracking-tight text-slate-800 dark:text-slate-100">User Profile</h1>
+    <div v-if="loading" class="text-center py-10 text-slate-500">Loading profile...</div>
+    <div v-else-if="error" class="mb-6 rounded-md border border-danger/40 bg-danger/10 p-4 text-danger">{{ error }}</div>
+    <div v-else class="flex flex-col gap-8">
+  <div class="card dark:border-slate-700 dark:bg-slate-800">
+        <div class="mb-6 border-b border-slate-200 pb-4">
+          <h2 class="text-2xl font-bold text-slate-800">{{ user.username }}</h2>
+          <p class="text-slate-600">{{ user.email }}</p>
+          <p class="mt-1 text-xs text-slate-500">Joined {{ formatDate(user.createdAt) }}</p>
         </div>
-        
-        <div class="stats">
-          <div class="stat">
-            <span class="stat-number">{{ user.questionsCount }}</span>
-            <span class="stat-label">Questions Created</span>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="flex flex-col items-center rounded-md border border-slate-200 bg-slate-50 p-6 text-center dark:border-slate-600 dark:bg-slate-700/60">
+            <span class="text-3xl font-bold text-primary">{{ user.questionsCount }}</span>
+            <span class="mt-2 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Questions Created</span>
           </div>
-          <div class="stat">
-            <span class="stat-number">{{ user.votesCount }}</span>
-            <span class="stat-label">Votes Cast</span>
+          <div class="flex flex-col items-center rounded-md border border-slate-200 bg-slate-50 p-6 text-center dark:border-slate-600 dark:bg-slate-700/60">
+            <span class="text-3xl font-bold text-secondary">{{ user.votesCount }}</span>
+            <span class="mt-2 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Votes Cast</span>
           </div>
         </div>
       </div>
-      
-      <div class="card">
-        <h3>Your Questions</h3>
-        <div v-if="userQuestions.length === 0" class="no-content">
-          <p>You haven't created any questions yet.</p>
-          <RouterLink to="/create" class="btn">Create Your First Question</RouterLink>
+      <div class="card dark:border-slate-700 dark:bg-slate-800">
+        <h3 class="mb-4 text-xl font-semibold text-slate-800">Your Questions</h3>
+        <div v-if="userQuestions.length === 0" class="text-center py-8">
+          <p class="text-slate-600">You haven't created any questions yet.</p>
+          <RouterLink to="/create" class="btn mt-4">Create Your First Question</RouterLink>
         </div>
-        <div v-else class="questions-list">
-          <div v-for="question in userQuestions" :key="question.id" class="question-item">
-            <h4>{{ question.title }}</h4>
-            <p class="question-stats">
-              {{ question.side1Votes }} {{ question.side1Text }} • {{ question.side2Votes }} {{ question.side2Text }} • 
+        <div v-else class="space-y-4">
+          <div v-for="question in userQuestions" :key="question.id" class="rounded-md border border-slate-200 bg-slate-50 p-4 dark:border-slate-600 dark:bg-slate-700/60">
+            <h4 class="text-lg font-medium text-slate-800 dark:text-slate-100">{{ question.title }}</h4>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              {{ question.side1Votes }} {{ question.side1Text }} • {{ question.side2Votes }} {{ question.side2Text }} •
               Total: {{ question.side1Votes + question.side2Votes }} votes
             </p>
-            <p class="question-date">{{ formatDate(question.createdAt) }}</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-500">{{ formatDate(question.createdAt) }}</p>
           </div>
         </div>
       </div>
@@ -113,89 +104,5 @@ function formatDate(dateString: string): string {
 </script>
 
 <style scoped>
-.profile {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.profile-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.joined-date {
-  color: #666;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-}
-
-.stats {
-  display: flex;
-  gap: 2rem;
-  margin-top: 1rem;
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  flex: 1;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #3498db;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: #666;
-  margin-top: 0.5rem;
-}
-
-.questions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.question-item {
-  padding: 1rem;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  background: #f9f9f9;
-}
-
-.question-item h4 {
-  margin-bottom: 0.5rem;
-  color: #2c3e50;
-}
-
-.question-stats {
-  color: #666;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.question-date {
-  color: #999;
-  font-size: 0.8rem;
-}
-
-.no-content {
-  text-align: center;
-  padding: 2rem;
-}
-
-.no-content .btn {
-  margin-top: 1rem;
-  text-decoration: none;
-  display: inline-block;
-}
+/* Post-migration minimal scoped styles (none needed) */
 </style>

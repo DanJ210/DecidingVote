@@ -4,10 +4,24 @@
     <meta charset="UTF-8">
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voting App</title>
+    <meta name="theme-color" content="#3498db">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="description" content="DecidingVote – create two-sided polls and see real-time results.">
+  <!-- iOS PWA support -->
+  <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>DecidingVote</title>
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(e => console.warn('SW registration failed', e))
+        })
+      }
+    </script>
   </body>
 </html>

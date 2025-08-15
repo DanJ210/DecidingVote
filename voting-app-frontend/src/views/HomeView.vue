@@ -1,27 +1,25 @@
 <template>
-  <div class="home">
-    <h1>Welcome to VotingApp</h1>
-    <p>A platform where you can create polls and vote on questions that matter to you.</p>
-    
-    <div class="hero-section">
-      <h2>How it works:</h2>
-      <div class="steps">
-        <div class="step">
-          <h3>1. Create</h3>
-          <p>Have a discussion to work out between you and your friend? Want to prove your significant other wrong? Let the community decide!</p>
+  <div class="mx-auto max-w-6xl text-center">
+    <h1 class="text-4xl font-bold tracking-tight text-slate-800 dark:text-slate-100 sm:text-5xl">Welcome to DecidingVote</h1>
+    <p class="mx-auto mt-4 max-w-2xl text-lg text-slate-600 dark:text-slate-400">Create two‑sided questions with fully custom labels and discover what the community thinks.</p>
+    <div class="mt-16">
+  <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100">How it works</h2>
+      <div class="mt-8 grid gap-6 md:grid-cols-3">
+  <div class="flex flex-col rounded-lg border border-slate-200 bg-white p-6 text-left shadow-card dark:border-slate-700 dark:bg-slate-800">
+          <h3 class="mb-2 text-lg font-semibold text-primary">1. Create</h3>
+          <p class="text-sm leading-relaxed text-slate-600">Post a question—settle debates, resolve friendly disputes, or just satisfy curiosity.</p>
         </div>
-        <div class="step">
-          <h3>2. Vote</h3>
-          <p>Browse questions and share your opinion</p>
+  <div class="flex flex-col rounded-lg border border-slate-200 bg-white p-6 text-left shadow-card dark:border-slate-700 dark:bg-slate-800">
+          <h3 class="mb-2 text-lg font-semibold text-secondary">2. Vote</h3>
+          <p class="text-sm leading-relaxed text-slate-600">Cast your vote on either side and (if needed) change it within 24 hours.</p>
         </div>
-        <div class="step">
-          <h3>3. Discover</h3>
-          <p>See what others think about important topics</p>
+  <div class="flex flex-col rounded-lg border border-slate-200 bg-white p-6 text-left shadow-card dark:border-slate-700 dark:bg-slate-800">
+          <h3 class="mb-2 text-lg font-semibold text-success">3. Discover</h3>
+          <p class="text-sm leading-relaxed text-slate-600">See live percentages and learn where consensus really lies.</p>
         </div>
       </div>
     </div>
-
-    <div class="cta-section">
+    <div class="mt-14 flex flex-wrap justify-center gap-4">
       <RouterLink to="/questions" class="btn">Browse Questions</RouterLink>
       <RouterLink :to="isAuthenticated ? '/questions' : '/register'" class="btn btn-success">Get Started</RouterLink>
     </div>
@@ -36,50 +34,5 @@ const { isAuthenticated } = useAuth()
 </script>
 
 <style scoped>
-.home {
-  text-align: center;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: #2c3e50;
-}
-
-.hero-section {
-  margin: 3rem 0;
-}
-
-.steps {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.step {
-  padding: 2rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #f8f9fa;
-}
-
-.step h3 {
-  color: #3498db;
-  margin-bottom: 1rem;
-}
-
-.cta-section {
-  margin-top: 3rem;
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.btn {
-  text-decoration: none;
-  display: inline-block;
-}
+/* Post-migration minimal scoped styles (none needed) */
 </style>
