@@ -1,16 +1,16 @@
-# Start the Voting App - Backend and Frontend
-Write-Host "Starting Voting App..." -ForegroundColor Green
+# Start FinalSay - Backend and Frontend
+Write-Host "Starting FinalSay..." -ForegroundColor Green
 
 # Start API in background
 Write-Host "Starting .NET API server..." -ForegroundColor Yellow
-Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd VotingApp.Api; dotnet run" -WindowStyle Normal
+Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd FinalSay.Api; dotnet run" -WindowStyle Normal
 
 # Wait a few seconds for API to start
 Start-Sleep 3
 
 # Start Frontend
 Write-Host "Starting Vue.js frontend..." -ForegroundColor Yellow
-Set-Location voting-app-frontend
+Set-Location final-say-frontend
 Start-Process pwsh -ArgumentList "-NoExit", "-Command", "npm run dev" -WindowStyle Normal
 
 Write-Host "Both services are starting!" -ForegroundColor Green

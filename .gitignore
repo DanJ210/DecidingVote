@@ -203,6 +203,6 @@ $RECYCLE.BIN/
 # Entity Framework Migrations
 **/Migrations/
 
-# Root package-lock.json (accidental, real one is in voting-app-frontend/)
+# Root package-lock.json (accidental, real one is in final-say-frontend/)
 /package-lock.json
 

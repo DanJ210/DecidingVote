@@ -1,4 +1,4 @@
-# VotingApp API Quick Testing Guide
+# FinalSay API Quick Testing Guide
 
 This guide shows how to query the API and test authentication using curl and PowerShell on Windows. Default API base URL: http://localhost:5244
 
@@ -133,7 +133,7 @@ You can run all of the above requests directly from VS Code using the REST Clien
 
 Steps:
 - Install the extension: Humao.rest-client
-- Open file: VotingApp.Api/VotingApp.Api.http
+- Open file: FinalSay.Api/FinalSay.Api.http
 - Click “Send Request” above each request block.
 - First, send the “Login and capture token” request. It saves the token to a {{token}} variable.
 - Then run any authenticated requests; they automatically use Authorization: Bearer {{token}}.

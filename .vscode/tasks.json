@@ -8,7 +8,7 @@
 			"args": [
 				"pwsh",
 				"-Command",
-				"cd VotingApp.Api; dotnet run"
+				"cd FinalSay.Api; dotnet run"
 			],
 			"group": "build",
 			"isBackground": true,

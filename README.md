@@ -1,4 +1,4 @@
-# DecidingVote – Custom Two‑Side Polling & Voting Platform
+# FinalSay – Democracy's answer to 'because I said so.'
 
 A full‑stack web application where authenticated users create questions with two custom‑labeled sides (e.g., "Plaintiff" vs "Defense", "Option A" vs "Option B") and community members cast a single vote which they may change within a 24‑hour grace window.
 
@@ -11,7 +11,7 @@ A full‑stack web application where authenticated users create questions with t
 - **Live Percentages**: Dynamic progress bars showing side percentages & totals
 - **User Profiles**: View authored questions and personal voting activity
 - **Accessible UI**: Incremental migration to Tailwind CSS utility + component layers
-- **API Testing Workflow**: Single canonical REST client file (`VotingApp.Api.http`) for rapid endpoint verification
+ - **API Testing Workflow**: Single canonical REST client file (`FinalSay.Api.http`) for rapid endpoint verification
 - **Extensible Domain Model**: Enum-based `VoteChoice` allows future side expansions if needed
 
 ## Technology Stack
@@ -22,7 +22,7 @@ A full‑stack web application where authenticated users create questions with t
 - **Identity & Auth**: ASP.NET Identity + JWT (HS256, configurable expiry)
 - **Object Model**: Questions, Votes, ApplicationUser, enum `VoteChoice { Side1, Side2 }`
 - **Validation**: Data annotations + server-side checks
-- **Migrations**: Tracked under `VotingApp.Api/Migrations`
+ - **Migrations**: Tracked under `FinalSay.Api/Migrations`
 
 ### Frontend (Vue 3 + TypeScript)
 - **Framework**: Vue 3 Composition API
@@ -50,7 +50,7 @@ A full‑stack web application where authenticated users create questions with t
 
 1. Navigate to the API directory:
    ```bash
-   cd VotingApp.Api
+   cd FinalSay.Api
    ```
 
 2. Restore packages:
@@ -78,7 +78,7 @@ A full‑stack web application where authenticated users create questions with t
 
 1. Navigate to the frontend directory:
    ```bash
-   cd voting-app-frontend
+   cd final-say-frontend
    ```
 
 2. Install dependencies:
@@ -117,7 +117,7 @@ A full‑stack web application where authenticated users create questions with t
 - Legacy Yes/No endpoints/fields replaced by enum-based choice model.
 - One vote per user per question enforced by unique constraint.
 
-For concrete request examples see `VotingApp.Api.http`.
+For concrete request examples see `FinalSay.Api.http`.
 
 ## Data Model (Current)
 
@@ -165,22 +165,22 @@ Standard ASP.NET Identity user + navigation collections.
 ### Running Tests
 ```bash
 # Frontend tests
-cd voting-app-frontend
+cd final-say-frontend
 npm run test:unit
 
 # Backend tests (if implemented)
-cd VotingApp.Api
+cd FinalSay.Api
 dotnet test
 ```
 
 ### Building for Production
 ```bash
 # Frontend build
-cd voting-app-frontend
+cd final-say-frontend
 npm run build
 
 # Backend publish
-cd VotingApp.Api
+cd FinalSay.Api
 dotnet publish -c Release
 ```
 
@@ -189,14 +189,14 @@ dotnet publish -c Release
 ### Backend Configuration (appsettings.json)
 ```json
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=VotingAppDb;Trusted_Connection=true;"
-  },
-  "Jwt": {
-    "Key": "your-secret-key-here",
-    "Issuer": "VotingApp",
-    "Audience": "VotingApp"
-  }
+   "ConnectionStrings": {
+      "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=FinalSayDb;Trusted_Connection=true;"
+   },
+   "Jwt": {
+      "Key": "your-secret-key-here",
+      "Issuer": "FinalSay",
+      "Audience": "FinalSay"
+   }
 }
 ```
 
@@ -210,7 +210,7 @@ Vite dev server can proxy API calls to backend origin when configured; adjust `.
 Add a `.env` (frontend) for values like `VITE_API_BASE_URL` if you need to override defaults.
 
 ### API Testing
-Use the consolidated REST client file `VotingApp.Api.http` (VS Code REST Client extension) for manual exploration. Keep this file authoritative; avoid duplicating per-feature variants.
+Use the consolidated REST client file `FinalSay.Api.http` (VS Code REST Client extension) for manual exploration. Keep this file authoritative; avoid duplicating per-feature variants.
 
 ## Styling Migration & Dark Mode
 Completed:
@@ -254,7 +254,7 @@ To Finish (Optional but Recommended):
 1. Generate real icons at 192x192 & 512x512 (plus other sizes like 256 & maskable) and place under `public/icons/`
 2. Add an Apple touch icon & iOS splash assets for improved iOS install experience
 3. Provide an offline fallback page (e.g., `offline.html`) and route navigation requests to it when offline
-4. Version your cache names (already using `decidingvote-static-v1`) and add a lightweight runtime update handshake
+4. Version your cache names (already using `finalsay-static-v1`) and add a lightweight runtime update handshake
 5. Consider swapping to a build-time generator (e.g., `@vite-pwa/plugin`) for precache manifest automation if scope grows
 6. Monitor service worker life-cycle (optionally postMessage from `sw.js` to notify clients of updates)
 
